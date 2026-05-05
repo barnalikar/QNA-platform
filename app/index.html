@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QA Platform 🚀</title>
+</head>
+<body>
+
+<h1>QA Platform</h1>
+
+<!-- REGISTER -->
+<h2>Register</h2>
+<input id="r_name" placeholder="Name"><br>
+<input id="r_email" placeholder="Email"><br>
+<input id="r_pass" type="password" placeholder="Password"><br>
+<button onclick="register()">Register</button>
+
+<hr>
+
+<!-- LOGIN -->
+<h2>Login</h2>
+<input id="l_email" placeholder="Email"><br>
+<input id="l_pass" type="password" placeholder="Password"><br>
+<button onclick="login()">Login</button>
+
+<p id="status"></p>
+
+<hr>
+
+<!-- ASK QUESTION -->
+<h2>Ask Question</h2>
+<input id="question" placeholder="Type your question"><br>
+<button onclick="askQuestion()">Ask</button>
+
+<script>
+
+let token = localStorage.getItem("token") || "";
+
+// ---------------- REGISTER ----------------
+async function register() {
+    const res = await fetch("http://127.0.0.1:8000/auth/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name: document.getElementById("r_name").value,
+            email: document.getElementById("r_email").value,
+            password: document.getElementById("r_pass").value
+        })
+    });
+
+    const data = await res.json();
+    alert(JSON.stringify(data));
+}
+
+// ---------------- LOGIN ----------------
+async function login() {
+  const email = document.getElementById("l_email").value;
+  const password = document.getElementById("l_pass").value;
+
+  const res = await fetch("http://127.0.0.1:8000/auth/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email, password })
+  });
+
+  const data = await res.json();
+  console.log("LOGIN RESPONSE:", data);
+
+  if (data.access_token) {
+    localStorage.setItem("token", data.access_token);
+    alert("Login successful ✅");
+  } else {
+    alert("Login failed ❌");
+  }
+}
+// ---------------- ASK QUESTION ----------------
+async function askQuestion() {
+  const token = localStorage.getItem("token"); // ALWAYS fetch fresh
+
+  console.log("TOKEN SENT:", token); // 👈 debug
+
+  const content = document.getElementById("question").value;
+
+  const res = await fetch("http://127.0.0.1:8000/questions/ask", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`   // 👈 correct format
+    },
+    body: JSON.stringify({ content })
+  });
+
+  const data = await res.json();
+  console.log("ASK RESPONSE:", data);
+
+  if (res.ok) {
+    alert("Question posted ✅");
+  } else {
+    alert(data.detail || "Error ❌");
+  }
+}
+async function verifyPayment() {
+  const res = await fetch("http://127.0.0.1:8000/payment/verify-payment", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      razorpay_order_id: "test",
+      razorpay_payment_id: "test",
+      razorpay_signature: "test",
+      user_id: 1,
+      plan: "gold"
+    })
+  });
+
+  const data = await res.json();
+  alert(data.message);
+}
+
+</script>
+
+</body>
+</html>
