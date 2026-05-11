@@ -35,5 +35,5 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         return user
 
     except Exception as e:
-        print("TOKEN ERROR:", e)  # 👈 important
+        print("TOKEN ERROR:", e)  
         raise HTTPException(status_code=401, detail="Invalid token")
